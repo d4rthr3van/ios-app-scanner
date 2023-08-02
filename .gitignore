@@ -46,3 +46,6 @@ venv/
 Results/
 
 *.ipa
+
+__pycache__
+/app/__pycache__
