@@ -11,6 +11,16 @@ Use the requirements file included in the repo to install iOS App Scanner.
 pip install -r requirements.txt
 ```
 
+"lbmagic" library is required to run the tool. You can install the tool via pip or Homebrew
+
+```bash
+pip install python-magic-bin==0.4.14
+```
+
+```bash
+brew install libmagic
+```
+
 ## Usage
 To run the tool, once installed the requirements, just execute the main.py file.
 
