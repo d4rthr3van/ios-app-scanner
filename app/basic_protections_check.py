@@ -39,18 +39,13 @@ def encrypted_binary(otool_result):
         print(Fore.RED + 'ANALYSIS : Encryption check - The binary is not encrypted' + Fore.RESET)
 
 
-def weak_hashing_md5(otool_result):
-    if otool_result.find('_CC_MD5') != -1:
-        print(Fore.RED + 'ANALYSIS : MD5 Check - MD5 hashing function found on the binary' + Fore.RESET)
-    else:
-        print(Fore.GREEN + 'ANALYSIS : MD5 Check - MD5 hashing function NOT found on the binary' + Fore.RESET)
-
-
-def weak_hashing_sha1(otool_result):
-    if otool_result.find('_CC_SHA1') != -1:
-        print(Fore.RED + 'ANALYSIS : SHA1 Check - SHA1 hashing function found on the binary' + Fore.RESET)
-    else:
-        print(Fore.GREEN + 'ANALYSIS : SHA1 Check - SHA1 hashing function NOT found on the binary' + Fore.RESET)
+def weak_hashing(otool_result):
+    vulnerable_hashing_function_list = ['_CC_MD5', '_CC_SHA1']
+    for element in vulnerable_hashing_function_list:
+        if otool_result.find(element) != -1:
+            print(Fore.RED + 'ANALYSIS : Hashing function Check - \'{func}\' hashing function found on the binary'.format(func = element) + Fore.RESET)
+        else:
+            print(Fore.GREEN + 'ANALYSIS : Hashing function Check - \'{func}\' hashing function NOT found on the binary'.format(func = element) + Fore.RESET)
 
 
 def insecure_random(otool_result):
@@ -64,26 +59,28 @@ def insecure_random(otool_result):
             Fore.GREEN + 'ANALYSIS : Insecure random Check - Insecure random function NOT found on the binary' + Fore.RESET)
 
 
-def insecure_malloc(otool_result):
-    if otool_result.find('_malloc') != -1:
-        print(Fore.RED + 'ANALYSIS : Malloc Check - Malloc function found on the binary' + Fore.RESET)
-    else:
-        print(Fore.GREEN + 'ANALYSIS : Malloc Check - Malloc function NOT found on the binary' + Fore.RESET)
-
-
 def vulnerable_functions(otool_result):
-    vulnerable_functions_list = ['_gets', '_memcpy', '_strncpy', '_strlen', '_vsnprintf', '_sscanf', '_strtok', '_alloca', '_sprintf', '_printf', '_vsprintf']
+    vulnerable_functions_list = ['_malloc', '_gets', '_memcpy', '_strncpy', '_strlen', '_vsnprintf', '_sscanf', '_strtok',
+                                 '_alloca', '_sprintf', '_printf', '_vsprintf']
     for element in vulnerable_functions_list:
         if otool_result.find(element) != -1:
-            print(Fore.RED + 'ANALYSIS : {func} Check - {func} function found on the binary'.format(func=element) + Fore.RESET)
+            print(Fore.RED + 'ANALYSIS : Unsafe functions Check - \'{func}\' function found on the binary'.format(
+                func=element) + Fore.RESET)
         else:
-            print(Fore.GREEN + 'ANALYSIS : {func} Check - {func} function NOT found on the binary'.format(func=element) + Fore.RESET)
+            print(Fore.GREEN + 'ANALYSIS : Unsafe functions Check - \'{func}\' function NOT found on the binary'.format(
+                func=element) + Fore.RESET)
 
 
 def plist_permissions_check(plist_file):
     try:
         plist_file_open = open(plist_file, 'r')
         plist_lines = plist_file_open.readlines()
+    except:
+        subprocess.run(args=['plutil', '-convert', 'xml1', plist_file], stdout=subprocess.PIPE)
+        plist_file_open = open(plist_file, 'r')
+        plist_lines = plist_file_open.readlines()
+
+    try:
         for line in plist_lines:
             if line.strip().find("Usage") != -1:
                 print(Fore.BLUE + 'PERMISSION INFO : {} requested'.format(line.strip().strip('</key>')))
@@ -102,8 +99,6 @@ def run_checks(binary_path):
     stack_canaries(otool_symbols)
     arc_flag(otool_symbols)
     encrypted_binary(otool_arch)
-    weak_hashing_md5(otool_symbols)
-    weak_hashing_sha1(otool_symbols)
+    weak_hashing(otool_symbols)
     insecure_random(otool_symbols)
-    insecure_malloc(otool_symbols)
     vulnerable_functions(otool_symbols)
