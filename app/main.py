@@ -46,8 +46,16 @@ def ask_for_continue():
     return user_input
 
 
-# Steps to analyze the IPA file
 def analyze_ipa(ipa_path):
+    """
+    Contains the steps to analyze the ipa file
+
+    Args:
+        Path to the ipa application to scan
+
+    Returns:
+        Prints the analysis results
+    """
     # Get the IPA filename to create the temporary folder
     # E.G: /users/test/example.ipa -> example
     ipa_name = os.path.basename(ipa_path.strip('.ipa'))
