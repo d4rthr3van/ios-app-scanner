@@ -1,4 +1,6 @@
 import subprocess
+
+import magic
 from colorama import Fore, Style
 
 
@@ -72,20 +74,15 @@ def vulnerable_functions(otool_result):
 
 
 def plist_permissions_check(plist_file):
-    try:
-        plist_file_open = open(plist_file, 'r')
-        plist_lines = plist_file_open.readlines()
-    except:
+    if 'binary' in magic.from_file(plist_file):
         subprocess.run(args=['plutil', '-convert', 'xml1', plist_file], stdout=subprocess.PIPE)
-        plist_file_open = open(plist_file, 'r')
-        plist_lines = plist_file_open.readlines()
+    plist_file_open = open(plist_file, 'r')
+    plist_lines = plist_file_open.readlines()
 
-    try:
-        for line in plist_lines:
-            if line.strip().find("Usage") != -1:
-                print(Fore.BLUE + 'PERMISSION INFO : {} requested'.format(line.strip().strip('</key>')))
-    except:
-        print(Fore.YELLOW + 'WARNING : Plist could not be read' + Fore.RESET)
+    for i, line in enumerate(plist_lines):
+        if line.strip().find("Usage") != -1:
+            print(Fore.BLUE + 'PERMISSION INFO : {} requested'.format(line.strip().strip('</key>')) + Fore.RESET)
+            print(Fore.BLUE + 'PERMISSION REASON : ' + plist_lines[i+1].strip().strip('</string>') + Fore.RESET)
 
 
 def run_checks(binary_path):
