@@ -45,9 +45,13 @@ def weak_hashing(otool_result):
     vulnerable_hashing_function_list = ['_CC_MD5', '_CC_SHA1']
     for element in vulnerable_hashing_function_list:
         if otool_result.find(element) != -1:
-            print(Fore.RED + 'ANALYSIS : Hashing function Check - \'{func}\' hashing function found on the binary'.format(func = element) + Fore.RESET)
+            print(
+                Fore.RED + 'ANALYSIS : Hashing function Check - \'{func}\' hashing function found on the binary'.format(
+                    func=element) + Fore.RESET)
         else:
-            print(Fore.GREEN + 'ANALYSIS : Hashing function Check - \'{func}\' hashing function NOT found on the binary'.format(func = element) + Fore.RESET)
+            print(
+                Fore.GREEN + 'ANALYSIS : Hashing function Check - \'{func}\' hashing function NOT found on the binary'.format(
+                    func=element) + Fore.RESET)
 
 
 def insecure_random(otool_result):
@@ -61,8 +65,16 @@ def insecure_random(otool_result):
             Fore.GREEN + 'ANALYSIS : Insecure random Check - Insecure random function NOT found on the binary' + Fore.RESET)
 
 
+def get_language(otool_result):
+    if otool_result.find('swift') != -1:
+        print(Fore.BLUE + 'INFO: SWIFT language used to develop the application' + Fore.RESET)
+    else:
+        print(Fore.BLUE + 'INFO : No SWIFT language used to develop the application' + Fore.RESET)
+
+
 def vulnerable_functions(otool_result):
-    vulnerable_functions_list = ['_malloc', '_gets', '_memcpy', '_strncpy', '_strlen', '_vsnprintf', '_sscanf', '_strtok',
+    vulnerable_functions_list = ['_malloc', '_gets', '_memcpy', '_strncpy', '_strlen', '_vsnprintf', '_sscanf',
+                                 '_strtok',
                                  '_alloca', '_sprintf', '_printf', '_vsprintf']
     for element in vulnerable_functions_list:
         if otool_result.find(element) != -1:
@@ -82,7 +94,7 @@ def plist_permissions_check(plist_file):
     for i, line in enumerate(plist_lines):
         if line.strip().find("Usage") != -1:
             print(Fore.BLUE + 'PERMISSION INFO : {} requested'.format(line.strip().strip('</key>')) + Fore.RESET)
-            print(Fore.BLUE + 'PERMISSION REASON : ' + plist_lines[i+1].strip().strip('</string>') + Fore.RESET)
+            print(Fore.BLUE + 'PERMISSION REASON : ' + plist_lines[i + 1].strip().strip('</string>') + Fore.RESET)
 
 
 def run_checks(binary_path):
@@ -90,6 +102,7 @@ def run_checks(binary_path):
     otool_header = run_otool_command(['otool', '-hv', binary_path])
     otool_symbols = run_otool_command(['otool', '-Iv', binary_path])
     otool_arch = run_otool_command(['otool', '-arch', 'all', '-Vl', binary_path])
+    otool_language = run_otool_command(['otool', '-L', binary_path])
 
     # Print results
     pie_flag(otool_header)
@@ -99,3 +112,4 @@ def run_checks(binary_path):
     weak_hashing(otool_symbols)
     insecure_random(otool_symbols)
     vulnerable_functions(otool_symbols)
+    get_language(otool_language)
